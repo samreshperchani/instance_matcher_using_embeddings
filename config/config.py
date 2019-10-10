@@ -1,6 +1,8 @@
+import os
+from pathlib import Path
 
 # path to base directory
-BASE_DIR = 'E:/University/Thesis/submission/dbkwik_instance_matching_using_embeddings/'
+BASE_DIR = str(Path(os.path.dirname(os.path.abspath(__file__))).parent)
 
 # directory where data is present
 DATA_DIR = 'data'
@@ -47,3 +49,11 @@ CORRESPONDANCES_DIR = 'correspondances'
 
 # gold standard labels file
 GS_ENTITIES_LABELS_FILE = 'gs_entities_labels_wo_lyrics.pkl'
+
+
+#vector length
+EMBEDDING_VECTOR_LENGTH = 300
+
+
+############## CONFIGURATION FOR DOC2Vec MODEL #################
+DOC2VEC_EPOCHS = 6
