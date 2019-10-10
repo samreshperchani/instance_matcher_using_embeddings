@@ -57,3 +57,7 @@ EMBEDDING_VECTOR_LENGTH = 300
 
 ############## CONFIGURATION FOR DOC2Vec MODEL #################
 DOC2VEC_EPOCHS = 6
+
+
+############## CONFIGURATION FOR WORD2Vec MODEL #################
+WORD2VEC_EPOCHS = 6

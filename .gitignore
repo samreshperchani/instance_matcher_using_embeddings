@@ -1,2 +1,8 @@
 #ignore pushing data folder
 data/
+
+#ignore model folders
+doc2vec/model
+
+#ignore model folders
+word2vec/model
