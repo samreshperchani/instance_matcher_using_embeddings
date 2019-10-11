@@ -6,3 +6,6 @@ doc2vec/model
 
 #ignore model folders
 word2vec/model
+
+#ignore model folders
+rdf2vec/model

@@ -50,10 +50,26 @@ CORRESPONDANCES_DIR = 'correspondances'
 # gold standard labels file
 GS_ENTITIES_LABELS_FILE = 'gs_entities_labels_wo_lyrics.pkl'
 
+# directory where knowledge graphs (combinations of all ttl files should be stored)
+KG_DIR = 'knowledge_graphs' 
+
+# labels mapping directory
+LB_MAP_DIR = 'labels_mapping'
+
+# folder where knowledge graphs after revision of labels will be saved
+REVISED_KG_DIR = 'revised_kgs'
+
+# folder when final merged knowledge graph will be saved for random walks
+MERGED_KG_RW = 'kg_for_random_walks'
+
+# file of the final merged graph for random walks
+MERGED_KG_RW_FILE_NAME = 'merged_kg.ttl'
 
 #vector length
 EMBEDDING_VECTOR_LENGTH = 300
 
+# folder where walks will be stored
+WALKS_DIR = 'graph_walks'
 
 ############## CONFIGURATION FOR DOC2Vec MODEL #################
 DOC2VEC_EPOCHS = 6
@@ -61,3 +77,7 @@ DOC2VEC_EPOCHS = 6
 
 ############## CONFIGURATION FOR WORD2Vec MODEL #################
 WORD2VEC_EPOCHS = 6
+
+
+############## CONFIGURATION FOR RDF2Vec MODEL #################
+RDF2VEC_EPOCHS = 6
