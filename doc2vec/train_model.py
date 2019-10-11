@@ -68,7 +68,7 @@ class Train_DOC2Vec:
                                 line = line.lower()
                                 if not line.startswith('#'):
                                     s_p_o = line.split(' ', 2)
-                                    subject = s_p_o[0].replace("<","").replace(">","")
+                                    subject = str(s_p_o[0]).strip() #.replace("<","").replace(">","")
                                     obj = s_p_o[2].replace(".","")
                                     obj = obj[1:obj.rfind("\"")].lower().replace("\n","").replace("\"","").replace(";","")
                                     tokens = obj.split(" ")
