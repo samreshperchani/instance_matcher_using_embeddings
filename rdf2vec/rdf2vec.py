@@ -12,6 +12,10 @@ import multiprocessing as mp
 import pandas as pd
 import random
 import time
+import psycopg2
+import sql
+from sqlalchemy import create_engine
+import pyodbc
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +68,30 @@ MERGED_KG_RW_FILE_NAME = config.MERGED_KG_RW_FILE_NAME
 
 # folder where random walks will be stored
 WALKS_DIR = config.WALKS_DIR
+
+# instance labels db dsn
+INS_LABELS_DB = config.INS_LABELS_DB
+
+# category labels db dsn
+CAT_LABELS_DB = config.CAT_LABELS_DB
+
+# property labels db dsn
+PROP_LABELS_DB = config.PROP_LABELS_DB
+
+# class labels db dsn
+CLASS_LABELS_DB = config.CLASS_LABELS_DB
+
+# instance labels count db
+INS_DUPL_LABELS_DB = config.INS_DUPL_LABELS_DB
+
+# categories labels count db
+CAT_DUPL_LABELS_DB = config.CAT_DUPL_LABELS_DB
+
+# properties labels count db
+PROP_DUPL_LABELS_DB = config.PROP_DUPL_LABELS_DB
+
+# classes labels count db
+CLASS_DUPL_LABELS_DB = config.CLASS_DUPL_LABELS_DB
 
 # class to traing word2vec
 class RDF2Vec:
@@ -366,3 +394,155 @@ class RDF2Vec:
 
         # save model
         model.save('model/rdf2vec.model')
+
+    #################################### Database functions ###################################
+    def pre_process_labels(self, label):
+        pre_processed_label = label
+        if label.find("\"^^") != -1:
+            pre_processed_label = label[1: label.index("\"^^")].lower()
+        elif len(label) > 0:
+            pre_processed_label = label[1:len(label)-6].lower()
+        
+        return pre_processed_label
+
+
+    def insert_labels_to_db(self, dsn_name, id_column_name, wiki_name, file_name, target_table, schema):
+        connection_string = 'mssql+pyodbc://@%s' % dsn_name
+        engine = create_engine(connection_string)
+        my_cols = ["details"]
+        df = pd.read_table(file_name, names=my_cols)
+        
+        df = df.iloc[1:len(df)-1]
+        if len(df) > 0:
+            new_cols = df["details"].str.split(" ", n = 2, expand=True)
+            df[id_column_name] = new_cols[0].str.lower()
+            df['predicate'] = new_cols[1].str.lower()
+            df['label'] = new_cols[2].apply(self.pre_process_labels) #(lambda x: x[1: x.index("\"^^")].lower())#[1:len(x)-6].lower())
+            df['wiki_name'] = wiki_name #new_cols[0].apply(lambda x: x.split('/')[3].lower())  #'' #wiki_name.lower()
+            df['revised_id'] = ''
+            df = df[df['predicate'] == '<http://www.w3.org/2000/01/rdf-schema#label>']
+            df = df.reset_index(drop=True)
+            df = df.drop(['details','predicate'], axis=1)
+            df['length_label'] = df['label'].apply(lambda x:len(x))
+            df['length_el'] = df[id_column_name].apply(lambda x:len(x))
+
+            print('Total Length:', len(df))
+
+            df = df[df['length_label'] < 3900]
+            df = df.reset_index(drop=True)
+
+            df = df.drop(['length_label','length_el'], axis=1)
+            
+            df.drop_duplicates(subset=[id_column_name], inplace=True)
+            df = df.reset_index(drop=True)
+            df.to_sql(target_table, engine, schema=schema, if_exists="append", index=False)
+
+    def truncate_tables_from_db(self, dsn_name, table_name, schema):
+        conn = pyodbc.connect('DSN=' + dsn_name +';')
+        sql_query_string = "TRUNCATE TABLE " + schema + '.' + table_name
+        print(sql_query_string)
+        cursor = conn.cursor()
+        cursor.execute(sql_query_string)
+        conn.commit()
+
+    def truncate_tables(self):
+        self.truncate_tables_from_db(INS_LABELS_DB, 'entity_labels', 'dbo')
+        self.truncate_tables_from_db(CAT_LABELS_DB, 'category_labels', 'dbo')
+        self.truncate_tables_from_db(PROP_LABELS_DB, 'prop_labels', 'dbo')
+        self.truncate_tables_from_db(CLASS_LABELS_DB, 'class_labels', 'dbo')
+        self.truncate_tables_from_db(INS_DUPL_LABELS_DB, 'entity_dup_labels', 'dbo')
+        self.truncate_tables_from_db(CAT_DUPL_LABELS_DB, 'category_dup_labels', 'dbo')
+        self.truncate_tables_from_db(PROP_DUPL_LABELS_DB, 'prop_dup_labels', 'dbo')
+        self.truncate_tables_from_db(CLASS_DUPL_LABELS_DB, 'class_dup_labels', 'dbo')
+
+    def process_labels(self):
+        wiki_names = glob.glob(BASE_DIR + '/'  +  DATA_DIR +  '/' + PROCESSED_DUMPS_DIR + '/*')
+        self.truncate_tables()
+        for file in wiki_names:
+            wiki_name = os.path.basename(file)
+
+            data_files = glob.glob(file + '/*.ttl')
+
+            label_files = list(filter(lambda x: x.endswith('labels.ttl') or x.endswith('-infobox-property-definitions.ttl') or x.endswith('-template-type-definitions.ttl'), data_files))
+
+            for lb_file in label_files:
+                print(lb_file)
+                if lb_file.endswith('-category-labels.ttl'): 
+                    self.insert_labels_to_db(CAT_LABELS_DB, 'category_id', wiki_name, lb_file, 'category_labels', 'dbo')
+                elif lb_file.endswith('-labels.ttl'): 
+                    self.insert_labels_to_db(INS_LABELS_DB, 'entity_id', wiki_name, lb_file, 'entity_labels', 'dbo')
+                elif lb_file.endswith('-infobox-property-definitions.ttl'):
+                    self.insert_labels_to_db(PROP_LABELS_DB, 'prop_id', wiki_name, lb_file, 'prop_labels', 'dbo')
+                elif lb_file.endswith('-template-type-definitions.ttl'):
+                    self.insert_labels_to_db(CLASS_LABELS_DB, 'class_id', wiki_name, lb_file, 'class_labels', 'dbo')
+
+
+    
+    def pop_duplicate_label_count_tables(self, dsn_name, source_table, target_table, schema):
+        conn = pyodbc.connect('DSN=' + dsn_name +';')
+        
+        sql_query_string = "INSERT INTO " + schema + "." + target_table + " select label label, count(*) count from  " + schema + "." + source_table + " group by label having count(*) > 1"
+        print(sql_query_string)
+        cursor = conn.cursor()
+        cursor.execute(sql_query_string)
+        
+        conn.commit()
+
+    def run_revise_uris_db(self, dsn_name, source_table, target_table, schema, prefix, type):
+        conn = pyodbc.connect('DSN=' + dsn_name +';')
+        
+        sql_query_string = "UPDATE e_l SET revised_id =CONCAT('<http://dbkwik.webdatacommons.org/" + type +"/" + prefix + "', REPLACE(e_l.label, ' ','_'),'>') FROM " + schema + "." + source_table + " e_l " + "inner join " + schema + '.' + target_table + " ins on ins.label = e_l.label and ins.count > 1 "
+        print(sql_query_string)
+        cursor = conn.cursor()
+        cursor.execute(sql_query_string)
+
+        conn.commit()
+
+    
+    def revise_uris(self):
+
+        #### populdate duplicate labels tables #######
+        self.pop_duplicate_label_count_tables(INS_DUPL_LABELS_DB, 'entity_labels', 'entity_dup_labels', 'dbo')
+        self.pop_duplicate_label_count_tables(CAT_DUPL_LABELS_DB, 'category_labels', 'category_dup_labels', 'dbo')
+        self.pop_duplicate_label_count_tables(PROP_DUPL_LABELS_DB, 'prop_labels', 'prop_dup_labels', 'dbo')
+        self.pop_duplicate_label_count_tables(CLASS_DUPL_LABELS_DB, 'class_labels', 'class_dup_labels', 'dbo')
+        
+        # populate labels count for instances
+        self.run_revise_uris_db(INS_DUPL_LABELS_DB, 'entity_labels', 'entity_dup_labels', 'dbo', '', 'resource')
+
+        # populate labels count for categories
+        self.run_revise_uris_db(CAT_DUPL_LABELS_DB, 'category_labels', 'category_dup_labels', 'dbo','category:', 'resource')
+
+        # populate labels count for properties
+        self.run_revise_uris_db(PROP_DUPL_LABELS_DB, 'prop_labels', 'prop_dup_labels', 'dbo','', 'property')
+
+        # populate labels count for classes
+        self.run_revise_uris_db(CLASS_DUPL_LABELS_DB, 'class_labels', 'class_dup_labels', 'dbo','', 'class')
+
+    
+    
+    def get_revise_ids_from_db(self, dsn_name, source_table, id_column_name, schema):
+        conn = pyodbc.connect('DSN=' + dsn_name +';')
+        query = "select wiki_name," +  id_column_name + " , revised_id from " + schema +"." + source_table  + " where revised_id <> '' order by wiki_name" 
+        
+        for df in pd.read_sql(query, conn, chunksize=10000): 
+            while(len(df)>0):
+                wiki_name = df.iloc[0]['wiki_name']
+                print('Processing Wiki: ', wiki_name)
+                df_wiki = df[df['wiki_name']==wiki_name]
+                df_wiki = df_wiki.drop('wiki_name', axis = 1)
+                df_wiki.to_csv(BASE_DIR + '/' + DATA_DIR + '/' + LB_MAP_DIR +'/' + wiki_name + '_' + 'labels_map.ttl' , sep=' ', mode='a+', header= None, index= False, encoding = 'utf-8')
+                df.drop(df[df['wiki_name']==wiki_name].index, inplace=True)
+                print('Remaining Record: ', len(df))
+    
+    def generate_labels_mapping_file(self):
+        if os.path.exists(BASE_DIR + '/' + DATA_DIR + '/' + LB_MAP_DIR):
+            shutil.rmtree(BASE_DIR + '/' + DATA_DIR + '/' + LB_MAP_DIR, ignore_errors=False)
+            time.sleep(5)
+        os.mkdir(BASE_DIR + '/' + DATA_DIR + '/' + LB_MAP_DIR)
+        
+        #### populdate duplicate labels tables #######
+        self.get_revise_ids_from_db(INS_DUPL_LABELS_DB, 'entity_labels', 'entity_id', 'dbo')
+        self.get_revise_ids_from_db(CAT_DUPL_LABELS_DB, 'category_labels', 'category_id', 'dbo')
+        self.get_revise_ids_from_db(PROP_DUPL_LABELS_DB, 'prop_labels', 'prop_id', 'dbo')
+        self.get_revise_ids_from_db(CLASS_DUPL_LABELS_DB, 'class_labels', 'class_id', 'dbo')

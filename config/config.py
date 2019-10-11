@@ -81,3 +81,19 @@ WORD2VEC_EPOCHS = 6
 
 ############## CONFIGURATION FOR RDF2Vec MODEL #################
 RDF2VEC_EPOCHS = 6
+
+
+
+
+############### LABELS DATABASE CONFIGURATION (please input DSN name)#####################
+INS_LABELS_DB = 'instance_matcher_db'
+INS_DUPL_LABELS_DB = 'instance_matcher_db'
+
+CAT_LABELS_DB = 'instance_matcher_db'
+CAT_DUPL_LABELS_DB = 'instance_matcher_db'
+
+PROP_LABELS_DB = 'instance_matcher_db'
+PROP_DUPL_LABELS_DB = 'instance_matcher_db'
+
+CLASS_LABELS_DB = 'instance_matcher_db'
+CLASS_DUPL_LABELS_DB = 'instance_matcher_db'
