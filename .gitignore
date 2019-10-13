@@ -1,11 +1,10 @@
 #ignore pushing data folder
 data/
 
-#ignore model folders
+#ignore pushing model folders
 doc2vec/model
-
-#ignore model folders
 word2vec/model
-
-#ignore model folders
 rdf2vec/model
+
+#ignore split dataset script
+split_dataset.py
