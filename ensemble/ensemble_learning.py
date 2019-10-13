@@ -930,9 +930,275 @@ class ENSEMBLE_LEARNING:
         X_test = pd.merge(X_test, df_test, how='inner', left_on=['entity_id_wiki_1','entity_id_wiki_2'], right_on=['entity_id_wiki_1','entity_id_wiki_2'])
 
         return X_train, y_train, X_test
+    
+    # Autoencoder using Network 2
+    def transform_dataset_using_autoencoder_network2(self, X_train, y_train, X_test):
+        print('*********** using Autoencoder(Network 2) ensemble learning ****************')
+        df_train = pd.concat([X_train, y_train], axis= 1)
+        df_test= X_test
+        
+        def reduce_dimension(dataset):
+            encoding_dim = 100
+            dataset['label'] = 0
+            X = dataset
+            
+            X = dataset.drop(columns=['label'])
+            Y = dataset['label']
+            sX = minmax_scale(X, axis = 0)
+            ncol = sX.shape[1]
+            
+            X_train, X_test, Y_train, Y_test = train_test_split(sX, Y, train_size = 0.6, random_state = seed(2017))
+            
+            input_dim = Input(shape = (ncol, ))
+            
+            # Encoder Layers
+            encoded1 = Dense(300, activation = 'relu')(input_dim)
+            encoded2 = Dense(250, activation = 'relu')(encoded1)
+            encoded3 = Dense(200, activation = 'relu')(encoded2)
+            encoded4 = Dense(150, activation = 'relu')(encoded3)
+            encoded5 = Dense(encoding_dim, activation = 'relu')(encoded4)
+            
+            # Decoder Layers
+            decoded1 = Dense(150, activation = 'relu')(encoded5)
+            decoded2 = Dense(200, activation = 'relu')(decoded1)
+            decoded3 = Dense(250, activation = 'relu')(decoded2)
+            decoded4 = Dense(300, activation = 'relu')(decoded3)
+            
+            # COMBINE ENCODER AND DECODER INTO AN AUTOENCODER MODEL
+            autoencoder = Model(input = input_dim, output = decoded4)
+            
+            # CONFIGURE AND TRAIN THE AUTOENCODER
+            autoencoder.compile(optimizer = 'adadelta', loss = 'binary_crossentropy')
+            autoencoder.fit(X_train, X_train, nb_epoch = 15, batch_size = 100, shuffle = True, validation_data = (X_test, X_test))
+            
+            # THE ENCODER TO EXTRACT THE REDUCED DIMENSION FROM THE ABOVE AUTOENCODER
+            encoder = Model(input = input_dim, output = encoded5)
+            encoded_input = Input(shape = (encoding_dim, ))
+            encoded_out = encoder.predict(X)
+            
+            return encoder, pd.DataFrame(encoded_out)
+
+        vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_ent1.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_ent2.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+
+        vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_ent1.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_ent2.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_ent2'], inplace=True)
+
+        vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_ent1.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_ent2.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+
+
+        vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_ent1.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_ent2.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+
+        vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_ent1.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_ent2.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_ent2'], inplace=True)
+
+        vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_ent1.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+
+        vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
+        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_ent2.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+
+        ########################### autoencoder on DOC2Vec #############################################
+        vector_col_name_doc2vec = ['doc2vec_ent' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH)]
+        vector_col_name_doc2vec.append('entity_id')
+        df_doc2vec_ent1_train = X_train[vector_col_name_doc2vec_ent1 + ['entity_id_wiki_1']]
+        df_doc2vec_ent1_train.columns = vector_col_name_doc2vec
+
+        df_doc2vec_ent2_train = X_train[vector_col_name_doc2vec_ent2 + ['entity_id_wiki_2']]
+        df_doc2vec_ent2_train.columns = vector_col_name_doc2vec
+
+        df_doc2vec_entities_train = pd.concat([df_doc2vec_ent1_train, df_doc2vec_ent2_train])
+        df_doc2vec_entities_train = df_doc2vec_entities_train.reset_index(drop=True)
+        df_doc2vec_entities_train_vectors = df_doc2vec_entities_train.drop(columns=['entity_id'])
+
+        print(df_doc2vec_entities_train.head())
+
+
+        doc2vec_encoder, df_autoencoder_doc2vec_train = reduce_dimension(df_doc2vec_entities_train_vectors)
+        df_autoencoder_doc2vec_train.columns = ['doc2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+        df_doc2vec_entities_train = df_doc2vec_entities_train[['entity_id']]
+        df_autoencoder_doc2vec_train = pd.merge(df_autoencoder_doc2vec_train, df_doc2vec_entities_train, how='inner', right_index=True, left_index=True)
+
+
+        df_doc2vec_ent1_test = X_test[vector_col_name_doc2vec_ent1 + ['entity_id_wiki_1']]
+        df_doc2vec_ent1_test.columns = vector_col_name_doc2vec
+        df_doc2vec_ent2_test = X_test[vector_col_name_doc2vec_ent2+ ['entity_id_wiki_2']]
+        df_doc2vec_ent2_test.columns = vector_col_name_doc2vec
+        df_doc2vec_entities_test = pd.concat([df_doc2vec_ent1_test, df_doc2vec_ent2_test])
+        df_doc2vec_entities_test = df_doc2vec_entities_test.reset_index(drop=True)
+        df_doc2vec_entities_test_vectors = df_doc2vec_entities_test.drop(columns=['entity_id'])
+
+        X_autoencoder_doc2vec_test = doc2vec_encoder.predict(df_doc2vec_entities_test_vectors)
+        df_autoencoder_doc2vec_test = pd.DataFrame.from_records(X_autoencoder_doc2vec_test)
+        df_autoencoder_doc2vec_test.columns = ['doc2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+        df_doc2vec_entities_test = df_doc2vec_entities_test[['entity_id']]
+
+        print('After autoencoder Test: ', len(df_autoencoder_doc2vec_test))
+
+        df_autoencoder_doc2vec_test = pd.merge(df_autoencoder_doc2vec_test, df_doc2vec_entities_test, how='inner', right_index=True, left_index=True)
+
+
+        ########################### autoencoder on Word2Vec #############################################
+        vector_col_name_word2vec = ['word2vec_ent' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH)]
+        vector_col_name_word2vec.append('entity_id')
+        df_word2vec_ent1_train = X_train[vector_col_name_word2vec_ent1 + ['entity_id_wiki_1']]
+        df_word2vec_ent1_train.columns = vector_col_name_word2vec
+
+        df_word2vec_ent2_train = X_train[vector_col_name_word2vec_ent2 + ['entity_id_wiki_2']]
+        df_word2vec_ent2_train.columns = vector_col_name_word2vec
+
+        df_word2vec_entities_train = pd.concat([df_word2vec_ent1_train, df_word2vec_ent2_train])
+        df_word2vec_entities_train = df_word2vec_entities_train.reset_index(drop=True)
+        df_word2vec_entities_train_vectors = df_word2vec_entities_train.drop(columns=['entity_id'])
+
+        word2vec_encoder, df_autoencoder_word2vec_train = reduce_dimension(df_doc2vec_entities_train_vectors)
+        df_autoencoder_word2vec_train.columns = ['word2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+        df_word2vec_entities_train = df_word2vec_entities_train[['entity_id']]
+        df_autoencoder_word2vec_train = pd.merge(df_autoencoder_word2vec_train, df_word2vec_entities_train, how='inner', right_index=True, left_index=True)
+
+
+        df_word2vec_ent1_test = X_test[vector_col_name_word2vec_ent1 + ['entity_id_wiki_1']]
+        df_word2vec_ent1_test.columns = vector_col_name_word2vec
+        df_word2vec_ent2_test = X_test[vector_col_name_word2vec_ent2+ ['entity_id_wiki_2']]
+        df_word2vec_ent2_test.columns = vector_col_name_word2vec
+        df_word2vec_entities_test = pd.concat([df_word2vec_ent1_test, df_word2vec_ent2_test])
+        df_word2vec_entities_test = df_word2vec_entities_test.reset_index(drop=True)
+        df_word2vec_entities_test_vectors = df_word2vec_entities_test.drop(columns=['entity_id'])
+
+        X_autoencoder_word2vec_test = word2vec_encoder.predict(df_word2vec_entities_test_vectors)
+        df_autoencoder_word2vec_test = pd.DataFrame.from_records(X_autoencoder_word2vec_test)
+        df_autoencoder_word2vec_test.columns = ['word2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+        df_word2vec_entities_test = df_word2vec_entities_test[['entity_id']]
+
+        print('After autoencoder Test: ', len(df_autoencoder_word2vec_test))
+
+        df_autoencoder_word2vec_test = pd.merge(df_autoencoder_word2vec_test, df_word2vec_entities_test, how='inner', right_index=True, left_index=True)
+
+        ########################### autoencoder on RDF2Vec #############################################
+        vector_col_name_rdf2vec = ['rdf2vec_ent' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH)]
+        vector_col_name_rdf2vec.append('entity_id')
+        df_rdf2vec_ent1_train = X_train[vector_col_name_rdf2vec_ent1 + ['entity_id_wiki_1']]
+        df_rdf2vec_ent1_train.columns = vector_col_name_rdf2vec
+
+        df_rdf2vec_ent2_train = X_train[vector_col_name_rdf2vec_ent2 + ['entity_id_wiki_2']]
+        df_rdf2vec_ent2_train.columns = vector_col_name_rdf2vec
+
+        df_rdf2vec_entities_train = pd.concat([df_rdf2vec_ent1_train, df_rdf2vec_ent2_train])
+        df_rdf2vec_entities_train = df_rdf2vec_entities_train.reset_index(drop=True)
+        df_rdf2vec_entities_train_vectors = df_rdf2vec_entities_train.drop(columns=['entity_id'])
+
+        print(df_rdf2vec_entities_train.head())
+
+        rdf2vec_encoder, df_autoencoder_rdf2vec_train = reduce_dimension(df_doc2vec_entities_train_vectors)
+        df_autoencoder_rdf2vec_train.columns = ['rdf2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+
+        df_rdf2vec_entities_train = df_rdf2vec_entities_train[['entity_id']]
+        df_autoencoder_rdf2vec_train = pd.merge(df_autoencoder_rdf2vec_train, df_rdf2vec_entities_train, how='inner', right_index=True, left_index=True)
+
+
+        df_rdf2vec_ent1_test = X_test[vector_col_name_rdf2vec_ent1 + ['entity_id_wiki_1']]
+        df_rdf2vec_ent1_test.columns = vector_col_name_rdf2vec
+        df_rdf2vec_ent2_test = X_test[vector_col_name_rdf2vec_ent2+ ['entity_id_wiki_2']]
+        df_rdf2vec_ent2_test.columns = vector_col_name_rdf2vec
+        df_rdf2vec_entities_test = pd.concat([df_rdf2vec_ent1_test, df_rdf2vec_ent2_test])
+        df_rdf2vec_entities_test = df_rdf2vec_entities_test.reset_index(drop=True)
+        df_rdf2vec_entities_test_vectors = df_rdf2vec_entities_test.drop(columns=['entity_id'])
+
+        X_autoencoder_rdf2vec_test = rdf2vec_encoder.predict(df_rdf2vec_entities_test_vectors)
+        df_autoencoder_rdf2vec_test = pd.DataFrame.from_records(X_autoencoder_rdf2vec_test)
+        df_autoencoder_rdf2vec_test.columns = ['rdf2vec_autoencoder_ent' + str(i) for i in range(0,REDUCED_DIMENSIONS)]
+        df_rdf2vec_entities_test = df_rdf2vec_entities_test[['entity_id']]
+
+        print('After autoencoder Test: ', len(df_autoencoder_rdf2vec_test))
+
+        df_autoencoder_rdf2vec_test = pd.merge(df_autoencoder_rdf2vec_test, df_rdf2vec_entities_test, how='inner', right_index=True, left_index=True)
+
+
+        X_train = X_train[['entity_id_wiki_1', 'entity_id_wiki_2']]
+        X_train = pd.merge(X_train, df_autoencoder_doc2vec_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = pd.merge(X_train, df_autoencoder_doc2vec_train, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = X_train.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
+
+        X_train = pd.merge(X_train, df_autoencoder_word2vec_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = pd.merge(X_train, df_autoencoder_word2vec_train, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = X_train.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
+
+        X_train = pd.merge(X_train, df_autoencoder_rdf2vec_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = pd.merge(X_train, df_autoencoder_rdf2vec_train, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_train =  X_train.drop(['entity_id'], axis=1)
+        X_train = X_train.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
+
+
+        print(len(X_train))
+
+        X_test = X_test[['entity_id_wiki_1', 'entity_id_wiki_2']]
+        X_test = pd.merge(X_test, df_autoencoder_doc2vec_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = pd.merge(X_test, df_autoencoder_doc2vec_test, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = X_test.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
+
+        X_test = pd.merge(X_test, df_autoencoder_word2vec_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = pd.merge(X_test, df_autoencoder_word2vec_test, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = X_test.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
+
+        X_test = pd.merge(X_test, df_autoencoder_rdf2vec_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = pd.merge(X_test, df_autoencoder_rdf2vec_test, how='inner', left_on='entity_id_wiki_2', right_on='entity_id')
+        X_test =  X_test.drop(['entity_id'], axis=1)
+        X_test = X_test.drop_duplicates(subset=['entity_id_wiki_1', 'entity_id_wiki_2'])
 
 
 
+        df_train = df_train[['entity_id_wiki_1', 'entity_id_wiki_2','label']]
+        df_test = df_test[['entity_id_wiki_1', 'entity_id_wiki_2']]
+
+        X_train = pd.merge(X_train, df_train, how='inner', left_on=['entity_id_wiki_1','entity_id_wiki_2'], right_on=['entity_id_wiki_1','entity_id_wiki_2'])
+        y_train = X_train['label']
+        y_train = y_train.astype('int')
+        X_train = X_train.drop(['label'], axis=1)
+
+
+        X_test = pd.merge(X_test, df_test, how='inner', left_on=['entity_id_wiki_1','entity_id_wiki_2'], right_on=['entity_id_wiki_1','entity_id_wiki_2'])
+
+
+        return X_train, y_train, X_test
 
     def apply_transformation(self, approach, X_train, y_train, X_test):
         if approach == 'CN':
@@ -950,7 +1216,7 @@ class ENSEMBLE_LEARNING:
         elif approach == 'SVD2':
             return self.transform_dataset_using_svd_network2(X_train, y_train, X_test)
         elif approach == 'AE2':
-            return self.transform_dataset_using_concat(X_train, y_train, X_test)
+            return self.transform_dataset_using_autoencoder_network2(X_train, y_train, X_test)
         else:
             return self.transform_dataset_using_concat(X_train, y_train, X_test)
 
