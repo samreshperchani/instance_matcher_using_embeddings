@@ -107,12 +107,12 @@ CLASSIFICATION_MODEL = 'XGB'
 
 
 ############# Configuration for Ensembles ###############################
-# CN = Concatenate, AVG = Average
-# PCA1 = Principle Component Analysis (Network 1), SVD1 = Singular Value Decomposition(Network 1), AE1 = Autoencoder Network(Network 1)
-# PCA2 = Principle Component Analysis (Network 2), SVD2 = Singular Value Decomposition(Network 2), AE2 = Autoencoder Network(Network 2) 
-
 # Ensemble dataset folder
 ENSEMBLE_DATASET_PATH = 'ensemble_dataset'
 
+
+# CN = Concatenate, AVG = Average
+# PCA1 = Principle Component Analysis (Network 1), SVD1 = Singular Value Decomposition(Network 1), AE1 = Autoencoder Network(Network 1)
+# PCA2 = Principle Component Analysis (Network 2), SVD2 = Singular Value Decomposition(Network 2), AE2 = Autoencoder Network(Network 2) 
 # Ensemble approach
-ENSEMBLE_APPROACH = 'CN'
+ENSEMBLE_APPROACH = 'SVD2'
