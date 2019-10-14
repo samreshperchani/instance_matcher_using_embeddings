@@ -10,10 +10,14 @@ import shutil
 import pandas as pd
 import logging
 from gensim.models import Doc2Vec
+from pathlib import Path
 
+
+path = Path(os.path.abspath(__file__))
 
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
@@ -36,7 +40,7 @@ DOC2VEC_EPOCHS = config.DOC2VEC_EPOCHS
 EMBEDDING_VECTOR_LENGTH = config.EMBEDDING_VECTOR_LENGTH
 
 # class to pre-process long abstracts and train model
-class DOC2VEC:
+class DOC2Vec:
     
     def pre_process_long_abstracts(self):
 
@@ -157,9 +161,9 @@ class DOC2VEC:
 
     # extract vectors from two wikis, wikiname should be folder names
     def extract_vectors(self, wiki_1, wiki_2):
-        if os.path.exists('model/doc2vec.model'):
+        if os.path.exists(str(path.parent) + '/model/doc2vec.model'):
             print('loading model')
-            model = Doc2Vec.load('model/doc2vec.model', mmap='r')
+            model = Doc2Vec.load(str(path.parent) + '/model/doc2vec.model', mmap='r')
             print('loading model done ..')
             
             tags = model.docvecs.doctags

@@ -48,7 +48,7 @@ PROCESSED_DUMPS_DIR = config.PROCESSED_DUMPS_DIR
 
 
 # class to traing word2vec
-class WORD2VEC:
+class WORD2Vec:
 
     # extract text from all xml dumps
     def extract_text(self):

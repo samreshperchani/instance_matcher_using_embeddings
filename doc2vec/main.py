@@ -1,8 +1,8 @@
-from train_model import DOC2VEC
+from doc2vec import DOC2Vec
 
 
 # create object of a class
-train_model = DOC2VEC()
+doc2vec = DOC2Vec()
 
 '''
 # call function to pre-process long abstracts
@@ -13,6 +13,6 @@ train_model.train_model()
 '''
 
 
-train_model.extract_vectors('130814~en~gameofthrones','1622892~en~thrones-of-game')
+doc2vec.extract_vectors('130814~en~gameofthrones','1622892~en~thrones-of-game')
 
 

@@ -1,8 +1,8 @@
-from train_model import WORD2VEC
+from word2vec import WORD2Vec
 
 
 # create object of a class
-train_model = WORD2VEC()
+train_model = WORD2Vec()
 
 '''
 # extract text

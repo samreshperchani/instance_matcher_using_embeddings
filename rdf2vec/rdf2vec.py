@@ -20,8 +20,11 @@ from gensim.models import Word2Vec
 
 logger = logging.getLogger(__name__)
 
+path = Path(os.path.abspath(__file__))
+
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
@@ -548,9 +551,9 @@ class RDF2Vec:
     
     # extract vectors from two wikis, wikiname should be folder names
     def extract_vectors(self, wiki_1, wiki_2):
-        if os.path.exists('model/rdf2vec.model'):
+        if os.path.exists(str(path.parent) + '/model/rdf2vec.model'):
             print('loading model')
-            model = Word2Vec.load('model/rdf2vec.model', mmap='r')
+            model = Word2Vec.load(str(path.parent) + '/model/rdf2vec.model', mmap='r')
             print('loading model done ..')
             
             words = model.wv.vocab
@@ -604,8 +607,6 @@ class RDF2Vec:
             df_vectors_wiki_2.drop_duplicates(subset=['entity_id'], inplace = True)
             df_vectors_wiki_2= df_vectors_wiki_2.reset_index(drop=True)
 
-            print(df_vectors_wiki_1.head())
-            print(df_vectors_wiki_2.head())
             return df_vectors_wiki_1, df_vectors_wiki_2
         else:
             print('model file not present, please re-run the model')
