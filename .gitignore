@@ -1,5 +1,6 @@
 #ignore pushing data folder
 data/
+data_/
 
 #ignore pushing model folders
 doc2vec/model

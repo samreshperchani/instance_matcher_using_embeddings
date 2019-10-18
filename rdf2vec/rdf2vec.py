@@ -550,7 +550,7 @@ class RDF2Vec:
 
     
     # extract vectors from two wikis, wikiname should be folder names
-    def extract_vectors(self, wiki_1, wiki_2):
+    def extract_vectors(self, df_wiki_1, df_wiki_2):
         if os.path.exists(str(path.parent) + '/model/rdf2vec.model'):
             print('loading model')
             model = Word2Vec.load(str(path.parent) + '/model/rdf2vec.model', mmap='r')
@@ -561,51 +561,22 @@ class RDF2Vec:
             df_vectors_wiki_1 = pd.DataFrame(columns = ['entity_id', 'wiki_name', 'label', 'vector'])
             df_vectors_wiki_2 = pd.DataFrame(columns = ['entity_id', 'wiki_name', 'label',  'vector'])
             
-            wiki_1_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_1 + '/*-labels.ttl') if "category-labels" not in file]
-            wiki_2_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_2 + '/*-labels.ttl') if "category-labels" not in file]
+            for index, row in df_wiki_1.iterrows():
+                if row['entity_id'] in words:
+                    entity_id = row['entity_id']
+                    label =  row['label']
+                    wiki_name = row['wiki_name']
+                    df_vectors_wiki_1.loc[len(df_vectors_wiki_1)] = [entity_id] + [wiki_name] + [label] + [model.wv[entity_id]]
+                    #df_vectors_wiki_1 = df_vectors_wiki_1.append({'entity_id': entity_id, 'wiki_name':wiki_name, 'label': label, 'vector':model.wv[entity_id]}, ignore_index=True)
             
-            if len(wiki_1_label_file) > 0:
-                my_cols = ["details"]
-                df = pd.read_table(wiki_1_label_file[0], names=my_cols)
-                df = df.iloc[1:len(df)-1]
-                
-                if len(df) > 0:
-                    new_cols = df["details"].str.split(" ", n = 2, expand=True)
-                    df['entity_id'] = new_cols[0].str.lower()
-                    df['predicate'] = new_cols[1].str.lower()
-                    df['label'] = new_cols[2].apply(self.pre_process_labels)
-
-                    for index, row in df.iterrows():
-                        if row['entity_id'] in words:
-                            entity_id = row['entity_id']
-                            predicate = row['predicate']
-                            label =  row['label'] if predicate == '<http://www.w3.org/2000/01/rdf-schema#label>' else entity_id[entity_id.rfind('/')+1:len(entity_id)-1]
-                            df_vectors_wiki_1 = df_vectors_wiki_1.append({'entity_id': entity_id, 'wiki_name':wiki_1, 'label': label, 'vector':model.wv[entity_id]}, ignore_index=True)
+            for index, row in df_wiki_2.iterrows():
+                if row['entity_id'] in words:
+                    entity_id = row['entity_id']
+                    label =  row['label']
+                    wiki_name = row['wiki_name']
+                    df_vectors_wiki_2.loc[len(df_vectors_wiki_2)] = [entity_id] + [wiki_name] + [label] + [model.wv[entity_id]]
+                    #df_vectors_wiki_2 = df_vectors_wiki_2.append({'entity_id': entity_id, 'wiki_name':wiki_name, 'label': label, 'vector':model.wv[entity_id]}, ignore_index=True)
             
-            if len(wiki_2_label_file) > 0:
-                my_cols = ["details"]
-                df = pd.read_table(wiki_2_label_file[0], names=my_cols)
-                df = df.iloc[1:len(df)-1]
-                
-                if len(df) > 0:
-                    new_cols = df["details"].str.split(" ", n = 2, expand=True)
-                    df['entity_id'] = new_cols[0].str.lower()
-                    df['predicate'] = new_cols[1].str.lower()
-                    df['label'] = new_cols[2].apply(self.pre_process_labels)
-
-                    for index, row in df.iterrows():
-                        if row['entity_id'] in words:
-                            entity_id = row['entity_id']
-                            predicate = row['predicate']
-                            label =  row['label'] if predicate == '<http://www.w3.org/2000/01/rdf-schema#label>' else entity_id[entity_id.rfind('/')+1:len(entity_id)-1]
-                            df_vectors_wiki_2 = df_vectors_wiki_2.append({'entity_id': entity_id, 'wiki_name':wiki_2, 'label': label, 'vector':model.wv[entity_id]}, ignore_index=True)
-            
-
-            df_vectors_wiki_1.drop_duplicates(subset=['entity_id'], inplace = True)
-            df_vectors_wiki_1= df_vectors_wiki_1.reset_index(drop=True)
-            
-            df_vectors_wiki_2.drop_duplicates(subset=['entity_id'], inplace = True)
-            df_vectors_wiki_2= df_vectors_wiki_2.reset_index(drop=True)
 
             return df_vectors_wiki_1, df_vectors_wiki_2
         else:

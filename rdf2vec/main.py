@@ -6,7 +6,7 @@ if __name__ == '__main__':
     # create object of a class
     rdf2vec_model = RDF2Vec()
 
-    '''
+    
     #insert labels to db
     rdf2vec_model.process_labels()
     
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # train RDF2Vec model
     rdf2vec_model.train_model()
-    '''
+    
 
-    rdf2vec_model.extract_vectors('130814~en~gameofthrones','1622892~en~thrones-of-game')
+    #rdf2vec_model.extract_vectors('130814~en~gameofthrones','1622892~en~thrones-of-game')
     

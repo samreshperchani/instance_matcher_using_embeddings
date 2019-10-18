@@ -28,8 +28,11 @@ from numpy.random import seed
 
 logger = logging.getLogger(__name__)
 
+path = Path(os.path.abspath(__file__))
+
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
@@ -60,44 +63,54 @@ class ENSEMBLE_LEARNING:
     # function to transform dataset using concatenate ensemble approach
     def transform_dataset_using_concat(self, X_train, y_train, X_test):
         print('*********** using concatenation ensemble learning ****************')
+        
         def get_concatenated_vectors(df):
-            df_vec_en_1 = df[['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1']]
+            df_vec_en_1 = df[['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1']]
+            
             vector_col_name = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_1[vector_col_name]= pd.DataFrame(df.doc2vec_vector_ent1.tolist(), index=df.index)
-            df_vec_en_1.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+            df_vec_en_1[vector_col_name]= pd.DataFrame(df.doc2vec_vector_entity_1.tolist(), index=df.index)
+            df_vec_en_1.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
         
             vector_col_name = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_1[vector_col_name]= pd.DataFrame(df.rdf2vec_vector_ent1.tolist(), index=df.index)
-            df_vec_en_1.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+            df_vec_en_1[vector_col_name]= pd.DataFrame(df.rdf2vec_vector_entity_1.tolist(), index=df.index)
+            df_vec_en_1.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
             
             vector_col_name = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_1[vector_col_name]= pd.DataFrame(df.word2vec_vector_ent1.tolist(), index=df.index)
-            df_vec_en_1.drop(columns=['word2vec_vector_ent1'], inplace=True)
+            df_vec_en_1[vector_col_name]= pd.DataFrame(df.word2vec_vector_entity_1.tolist(), index=df.index)
+            df_vec_en_1.drop(columns=['word2vec_vector_entity_1'], inplace=True)
+
+            print(df_vec_en_1.head())
+
             
-            df_vec_en_2 = df[['doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2']]
+            df_vec_en_2 = df[['doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2']]
+            
+
             vector_col_name = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_2[vector_col_name]= pd.DataFrame(df.doc2vec_vector_ent2.tolist(), index=df.index)
-            df_vec_en_2.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+            df_vec_en_2[vector_col_name]= pd.DataFrame(df.doc2vec_vector_entity_2.tolist(), index=df.index)
+            df_vec_en_2.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
             
             vector_col_name = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_2[vector_col_name]= pd.DataFrame(df.rdf2vec_vector_ent2.tolist(), index=df.index)
-            df_vec_en_2.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+            df_vec_en_2[vector_col_name]= pd.DataFrame(df.rdf2vec_vector_entity_2.tolist(), index=df.index)
+            df_vec_en_2.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
             
             vector_col_name = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-            df_vec_en_2[vector_col_name]= pd.DataFrame(df.word2vec_vector_ent2.tolist(), index=df.index)
-            df_vec_en_2.drop(columns=['word2vec_vector_ent2'], inplace=True)
+            df_vec_en_2[vector_col_name]= pd.DataFrame(df.word2vec_vector_entity_2.tolist(), index=df.index)
+            df_vec_en_2.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
             
             df = df[['entity_id_wiki_1','entity_id_wiki_2']]
             df = pd.merge(df, df_vec_en_1, left_index=True, right_index=True )
             df = pd.merge(df, df_vec_en_2, left_index=True, right_index=True )
 
+            
             return df
         
         #### tranformation on the training set ################
+        print('***********applying transofrmation on training set************')
         X_train = get_concatenated_vectors(X_train)
         
         #### tranformation on the test set ################
+        print('***********applying transofrmation on test set************')
         X_test = get_concatenated_vectors(X_test)
 
         return X_train, y_train, X_test
@@ -108,11 +121,11 @@ class ENSEMBLE_LEARNING:
         print('*********** using average ensemble learning ****************')
         # functions to calculate calculate average vectors
         def avg_vector_ent1(x):
-            vectors = [x['doc2vec_vector_ent1'], x['word2vec_vector_ent1'], x['rdf2vec_vector_ent1']]
+            vectors = [x['doc2vec_vector_entity_1'], x['word2vec_vector_entity_1'], x['rdf2vec_vector_entity_1']]
             return  np.mean(vectors, axis = 0) 
         
         def avg_vector_ent2(x):
-            vectors = [x['doc2vec_vector_ent2'], x['word2vec_vector_ent2'], x['rdf2vec_vector_ent2']]
+            vectors = [x['doc2vec_vector_entity_2'], x['word2vec_vector_entity_2'], x['rdf2vec_vector_entity_2']]
             return  np.mean(vectors, axis = 0)
 
         def calculate_average_vectors(df):
@@ -120,17 +133,17 @@ class ENSEMBLE_LEARNING:
             vector_col_name = ['ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
             df[vector_col_name]= pd.DataFrame(df.avg_vector_ent1.tolist(), index=df.index)
             df.drop(columns=['avg_vector_ent1'], inplace=True)
-            df.drop(columns=['doc2vec_vector_ent1'], inplace=True)
-            df.drop(columns=['word2vec_vector_ent1'], inplace=True)
-            df.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+            df.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
+            df.drop(columns=['word2vec_vector_entity_1'], inplace=True)
+            df.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
             
             df['avg_vector_ent2'] = df.apply(avg_vector_ent2, axis=1)
             vector_col_name = ['ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
             df[vector_col_name]= pd.DataFrame(df.avg_vector_ent2.tolist(), index=df.index)
             df.drop(columns=['avg_vector_ent2'], inplace=True)
-            df.drop(columns=['doc2vec_vector_ent2'], inplace=True)
-            df.drop(columns=['word2vec_vector_ent2'], inplace=True)
-            df.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+            df.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
+            df.drop(columns=['word2vec_vector_entity_2'], inplace=True)
+            df.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
             return df
 
@@ -152,13 +165,13 @@ class ENSEMBLE_LEARNING:
 
 
         def get_entity_vectors(df):
-            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1']]
-            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_ent1' : 'doc2vec_vector', 
-            'word2vec_vector_ent1' : 'word2vec_vector', 'rdf2vec_vector_ent1' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1']]
+            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_entity_1' : 'doc2vec_vector', 
+            'word2vec_vector_entity_1' : 'word2vec_vector', 'rdf2vec_vector_entity_1' : 'rdf2vec_vector'}, inplace=True)
             
-            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2']]
-            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_ent2' : 'doc2vec_vector', 
-            'word2vec_vector_ent2' : 'word2vec_vector', 'rdf2vec_vector_ent2' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2']]
+            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_entity_2' : 'doc2vec_vector', 
+            'word2vec_vector_entity_2' : 'word2vec_vector', 'rdf2vec_vector_entity_2' : 'rdf2vec_vector'}, inplace=True)
             
             df_concat = pd.concat([df_vec_en_1, df_vec_en_2])
             df_concat = df_concat.reset_index(drop=True)
@@ -199,7 +212,7 @@ class ENSEMBLE_LEARNING:
         df_test = pd.merge(df_test, df_pca_test, how='inner', left_index=True, right_index=True)
         df_test.drop(columns = vector_col_name_doc2vec + vector_col_name_word2vec + vector_col_name_rdf2vec, inplace=True)
 
-        X_train.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_train.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_train = pd.merge(X_train, df_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_train.drop(columns=['entity_id'], inplace=True)
 
@@ -208,7 +221,7 @@ class ENSEMBLE_LEARNING:
         df_model_train = df_model_train.drop_duplicates(subset=['entity_id_wiki_1','entity_id_wiki_2'])
         
         
-        X_test.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_test.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_test = pd.merge(X_test, df_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_test.drop(columns=['entity_id'], inplace=True)
         
@@ -239,13 +252,13 @@ class ENSEMBLE_LEARNING:
         vector_col_name_rdf2vec = ['rdf2vec_ent_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
         
         def get_entity_vectors(df):
-            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1']]
-            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_ent1' : 'doc2vec_vector', 
-            'word2vec_vector_ent1' : 'word2vec_vector', 'rdf2vec_vector_ent1' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1']]
+            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_entity_1' : 'doc2vec_vector', 
+            'word2vec_vector_entity_1' : 'word2vec_vector', 'rdf2vec_vector_entity_1' : 'rdf2vec_vector'}, inplace=True)
             
-            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2']]
-            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_ent2' : 'doc2vec_vector', 
-            'word2vec_vector_ent2' : 'word2vec_vector', 'rdf2vec_vector_ent2' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2']]
+            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_entity_2' : 'doc2vec_vector', 
+            'word2vec_vector_entity_2' : 'word2vec_vector', 'rdf2vec_vector_entity_2' : 'rdf2vec_vector'}, inplace=True)
             
             df_concat = pd.concat([df_vec_en_1, df_vec_en_2])
             df_concat = df_concat.reset_index(drop=True)
@@ -288,7 +301,7 @@ class ENSEMBLE_LEARNING:
         df_test = pd.merge(df_test, df_svd_test, how='inner', left_index=True, right_index=True)
         df_test.drop(columns = vector_col_name_doc2vec + vector_col_name_word2vec + vector_col_name_rdf2vec, inplace=True)
         
-        X_train.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_train.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_train = pd.merge(X_train, df_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_train.drop(columns=['entity_id'], inplace=True)
         
@@ -297,7 +310,7 @@ class ENSEMBLE_LEARNING:
         df_model_train = df_model_train.drop_duplicates(subset=['entity_id_wiki_1','entity_id_wiki_2'])
         
         
-        X_test.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_test.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_test = pd.merge(X_test, df_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_test.drop(columns=['entity_id'], inplace=True)
         
@@ -371,13 +384,13 @@ class ENSEMBLE_LEARNING:
         vector_col_name_rdf2vec = ['rdf2vec_ent_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
         
         def get_entity_vectors(df):
-            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1']]
-            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_ent1' : 'doc2vec_vector', 
-            'word2vec_vector_ent1' : 'word2vec_vector', 'rdf2vec_vector_ent1' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_1 = df[['entity_id_wiki_1','doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1']]
+            df_vec_en_1.rename(columns = {'entity_id_wiki_1': 'entity_id','doc2vec_vector_entity_1' : 'doc2vec_vector', 
+            'word2vec_vector_entity_1' : 'word2vec_vector', 'rdf2vec_vector_entity_1' : 'rdf2vec_vector'}, inplace=True)
             
-            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2']]
-            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_ent2' : 'doc2vec_vector', 
-            'word2vec_vector_ent2' : 'word2vec_vector', 'rdf2vec_vector_ent2' : 'rdf2vec_vector'}, inplace=True)
+            df_vec_en_2 = df[['entity_id_wiki_2','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2']]
+            df_vec_en_2.rename(columns = {'entity_id_wiki_2': 'entity_id', 'doc2vec_vector_entity_2' : 'doc2vec_vector', 
+            'word2vec_vector_entity_2' : 'word2vec_vector', 'rdf2vec_vector_entity_2' : 'rdf2vec_vector'}, inplace=True)
             
             df_concat = pd.concat([df_vec_en_1, df_vec_en_2])
             df_concat = df_concat.reset_index(drop=True)
@@ -414,7 +427,7 @@ class ENSEMBLE_LEARNING:
         df_test = pd.merge(df_test, df_ae_test, how='inner', left_index=True, right_index=True)
         df_test.drop(columns = vector_col_name_doc2vec + vector_col_name_word2vec + vector_col_name_rdf2vec, inplace=True)
 
-        X_train.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_train.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_train = pd.merge(X_train, df_train, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_train.drop(columns=['entity_id'], inplace=True)
 
@@ -423,7 +436,7 @@ class ENSEMBLE_LEARNING:
         df_model_train = df_model_train.drop_duplicates(subset=['entity_id_wiki_1','entity_id_wiki_2'])
 
 
-        X_test.drop(columns=['doc2vec_vector_ent1','word2vec_vector_ent1','rdf2vec_vector_ent1','doc2vec_vector_ent2','word2vec_vector_ent2','rdf2vec_vector_ent2'], inplace=True)
+        X_test.drop(columns=['doc2vec_vector_entity_1','word2vec_vector_entity_1','rdf2vec_vector_entity_1','doc2vec_vector_entity_2','word2vec_vector_entity_2','rdf2vec_vector_entity_2'], inplace=True)
         df_model_test = pd.merge(X_test, df_test, how='inner', left_on='entity_id_wiki_1', right_on='entity_id')
         df_model_test.drop(columns=['entity_id'], inplace=True)
 
@@ -454,53 +467,53 @@ class ENSEMBLE_LEARNING:
         df_test= X_test
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
 
         
@@ -699,53 +712,53 @@ class ENSEMBLE_LEARNING:
         df_test= X_test
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
         ########################### SVD on DOC2Vec #############################################
         vector_col_name_doc2vec = ['doc2vec_ent' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH)]
@@ -979,53 +992,53 @@ class ENSEMBLE_LEARNING:
             return encoder, pd.DataFrame(encoded_out)
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_train.doc2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_train.doc2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_word2vec_ent1]= pd.DataFrame(X_train.word2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_word2vec_ent2]= pd.DataFrame(X_train.word2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_ent1.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_train.rdf2vec_vector_entity_1.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_ent2.tolist(), index=X_train.index)
-        X_train.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_train[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_train.rdf2vec_vector_entity_2.tolist(), index=X_train.index)
+        X_train.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
 
         vector_col_name_doc2vec_ent1 = ['doc2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent1]= pd.DataFrame(X_test.doc2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_doc2vec_ent2 = ['doc2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['doc2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_doc2vec_ent2]= pd.DataFrame(X_test.doc2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['doc2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_word2vec_ent1 = ['word2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_word2vec_ent1]= pd.DataFrame(X_test.word2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_word2vec_ent2 = ['word2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['word2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_word2vec_ent2]= pd.DataFrame(X_test.word2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['word2vec_vector_entity_2'], inplace=True)
 
         vector_col_name_rdf2vec_ent1 = ['rdf2vec_ent1_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_ent1.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent1'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent1]= pd.DataFrame(X_test.rdf2vec_vector_entity_1.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_1'], inplace=True)
 
         vector_col_name_rdf2vec_ent2 = ['rdf2vec_ent2_' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH) ]
-        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_ent2.tolist(), index=X_test.index)
-        X_test.drop(columns=['rdf2vec_vector_ent2'], inplace=True)
+        X_test[vector_col_name_rdf2vec_ent2]= pd.DataFrame(X_test.rdf2vec_vector_entity_2.tolist(), index=X_test.index)
+        X_test.drop(columns=['rdf2vec_vector_entity_2'], inplace=True)
 
         ########################### autoencoder on DOC2Vec #############################################
         vector_col_name_doc2vec = ['doc2vec_ent' + str(i) for i in range(0,EMBEDDING_VECTOR_LENGTH)]
@@ -1222,11 +1235,16 @@ class ENSEMBLE_LEARNING:
 
     def generate_ensemble_dataset(self):
         df_training_set = pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'training_set' + '/'  + 'training_set.pkl')
-        X_train = df_training_set.drop(['label'], axis=1)
+        df_training_set = df_training_set.dropna()
+        print(df_training_set.head())
+        
         y_train = df_training_set['label'].astype('int')
+        X_train = df_training_set.drop(['label'], axis=1)
+        
         
         df_test_set = pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'test_set' + '/'  + 'test_set.pkl')
-        X_test = df_test_set.drop(['label'], axis=1)
+        df_test_set = df_test_set.dropna()
+        X_test = df_test_set #df_test_set.drop(['label'], axis=1)
         
         print(len(X_train),  ' ', len(y_train), ' ', len(X_test))
         

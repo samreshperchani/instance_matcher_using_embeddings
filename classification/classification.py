@@ -31,7 +31,6 @@ from sklearn.pipeline import make_pipeline
 class CLASSIFICATION:
     # this function runs selected algorithm on training set and return prediction label on test set
     def run_classification(self, X_train, y_train, X_test, classification_algorithm):
-
         y_pred = None
         
         ################ Model Training ########################
@@ -42,8 +41,8 @@ class CLASSIFICATION:
 
 
         print('***********balancing***********')
-        df_not_match = X_train[df.label==0]
-        df_match = X_train[df.label==1]
+        df_not_match = X_train[X_train.label==0]
+        df_match = X_train[X_train.label==1]
 
         if len(df_not_match) < len(df_match):
             df_not_matched_upsampled = resample(df_not_match, replace=True, n_samples=max(df_pos_class_count,df_neg_class_count), random_state=123) 

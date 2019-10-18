@@ -65,9 +65,9 @@ def process_link_mapping(title, links, wiki_name):
     
     # append wiki name in URIs
     for link_text, link_target in links.items():
-        processed_map[link_text.strip().lower()] = 'http://dbkwik.webdatacommons.org/'.strip() + wiki_name.strip().lower() + '.wikia.com/resource/' + link_target.strip().replace(' ', '_').lower() + ' '
+        processed_map[link_text.strip().lower()] = '<http://dbkwik.webdatacommons.org/'.strip() + wiki_name.strip().lower() + '.wikia.com/resource/' + link_target.strip().replace(' ', '_').lower() + '> '
     # at the end of the url a whitespace to ensure the url ends there
-    processed_map[title.strip().lower()] = 'http://dbkwik.webdatacommons.org/'.strip() + wiki_name.strip().lower() + '.wikia.com/resource/' + title.strip().replace(' ', '_').lower() + ' '
+    processed_map[title.strip().lower()] = '<http://dbkwik.webdatacommons.org/'.strip() + wiki_name.strip().lower() + '.wikia.com/resource/' + title.strip().replace(' ', '_').lower() + '> '
 
     replacement_list = sorted(list(processed_map.items()), key=lambda x: len(x[0]), reverse=True)
     return replacement_list

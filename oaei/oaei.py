@@ -17,8 +17,11 @@ import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
+path = Path(os.path.abspath(__file__))
+
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
