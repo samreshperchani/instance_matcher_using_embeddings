@@ -2,7 +2,8 @@
 The project uses three types of embeddings (DOC2Vec, Word2Vec, RDF2Vec) to perform instance matching on Knowledge Graphs
 
 # Setup configuration parameters
-Please set appropriate paraemters including path and database information in config.py file inside config folder
+Please set appropriate paraemters including path and database information in config.py file inside config folder.
+Database is required to group same label entities in case of RDF2Vec model
 
 # Steps to execute DBkWik workflow
 1. Create directory with name "data"
