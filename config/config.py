@@ -71,6 +71,9 @@ EMBEDDING_VECTOR_LENGTH = 300
 # folder where walks will be stored
 WALKS_DIR = 'graph_walks'
 
+# folder where rdf xml dumps are placed for OAEI
+XML_DUMPS_DIR = 'xml_dumps'
+
 ############## CONFIGURATION FOR DOC2Vec MODEL #################
 DOC2VEC_EPOCHS = 6
 
@@ -103,7 +106,7 @@ CLASS_DUPL_LABELS_DB = 'instance_matcher_db'
 # NB = Naive Bayes, DT = Decision Trees, LR= Logistic Regression SVM = Support Vector Machines, RF = Random Forest, XGB = XGBoost
 
 #Classification model to use
-CLASSIFICATION_MODEL = 'XGB'
+CLASSIFICATION_MODEL = 'DT'
 
 
 ############# Configuration for Ensembles ###############################

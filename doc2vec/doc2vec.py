@@ -140,14 +140,14 @@ class DOC2Vec:
         print('saving model...')
 
         # remove directory if already present
-        if os.path.exists('model'):
-            shutil.rmtree('model')
+        if os.path.exists(str(path.parent) + '/model/'):
+            shutil.rmtree(str(path.parent) + '/model/')
 
         # create model directory to save model    
-        os.mkdir('model')
+        os.mkdir(str(path.parent) + '/model/')
 
         # save model
-        model.save('model/doc2vec.model')
+        model.save(str(path.parent) + '/model/doc2vec.model')
 
     # function to remove extra characters from labels
     def pre_process_labels(self, label):
@@ -170,7 +170,6 @@ class DOC2Vec:
 
             df_vectors_wiki_1 = pd.DataFrame(columns = ['entity_id', 'wiki_name', 'label', 'vector'])
             df_vectors_wiki_2 = pd.DataFrame(columns = ['entity_id', 'wiki_name', 'label',  'vector'])
-            
             
             for index, row in df_wiki_1.iterrows():
                 if row['entity_id'] in tags:

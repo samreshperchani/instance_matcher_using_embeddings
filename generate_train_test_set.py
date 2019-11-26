@@ -6,6 +6,20 @@ import os
 import sys
 import glob
 from annoy import AnnoyIndex
+from utilities.rdf_xml_utils import RDF_XML_UTILS
+
+
+RDF_XML_UTILS = RDF_XML_UTILS()
+
+df_train_set, df_test_set = RDF_XML_UTILS.generate_train_test(wiki_1 = 'darkscape', wiki_2 = 'oldschoolrunscape')
+
+print(df_train_set.head())
+print(df_test_set.head())
+
+
+'''
+wiki_1 = 'darkscape'
+wiki_2 = 'oldschoolrunscape'
 
 # set configuration file path
 config_path = os.path.dirname(os.getcwd()) + '/config' 
@@ -46,11 +60,10 @@ def revise_labels(x):
     
     return revised_label
 
-wiki_1 = '113~en~memory-alpha'
-wiki_2 = '323~en~memory-beta'
 
-wiki_1_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_1 + '/*-labels.ttl') if "category-labels" not in file]
-wiki_2_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_2 + '/*-labels.ttl') if "category-labels" not in file]
+
+wiki_1_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_1 + '/*-instance-labels.ttl') if "category-labels" not in file]
+wiki_2_label_file = [file for file in glob.glob(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' + wiki_2 + '/*-instance-labels.ttl') if "category-labels" not in file]
  
 
 df_wiki_1 = pd.DataFrame(columns = ['entity_id','predicate','label','wiki_name'])
@@ -114,10 +127,6 @@ print('Extracting RDF2Vec Vectors')
 # get rdf2vec vectors
 #rdf2vec_wiki_1, rdf2vec_wiki_2 = rdf2vec_model.extract_vectors(df_wiki_1,df_wiki_2)
 
-#print(rdf2vec_wiki_1.head())
-
-#print(rdf2vec_wiki_1.head())
-#print(rdf2vec_wiki_2.head())
 
 
 #initialize word2vec_model
@@ -125,8 +134,6 @@ word2vec_model = WORD2Vec()
 print('Extracting Word2Vec Vectors')
 #word2vec_wiki_1, word2vec_wiki_2 = word2vec_model.extract_vectors(df_wiki_1,df_wiki_2)
 
-#print(word2vec_wiki_1.head())
-#print(word2vec_wiki_2.head())
 
 
 #initialize doc2vec_model
@@ -134,15 +141,17 @@ doc2vec_model = DOC2Vec()
 print('Extracting DOC2Vec Vectors')
 #doc2vec_wiki_1, doc2vec_wiki_2 = doc2vec_model.extract_vectors(df_wiki_1,df_wiki_2)
 
-#print(doc2vec_wiki_1.head())
-#print(doc2vec_wiki_2.head())
 
-#rdf2vec_wiki_1.to_pickle('rdf2vec_wiki1.pkl')
-#rdf2vec_wiki_2.to_pickle('rdf2vec_wiki2.pkl')
-#word2vec_wiki_1.to_pickle('word2vec_wiki1.pkl')
-#word2vec_wiki_2.to_pickle('word2vec_wiki2.pkl')
-#doc2vec_wiki_1.to_pickle('doc2vec_wiki1.pkl')
-#doc2vec_wiki_2.to_pickle('doc2vec_wiki2.pkl')
+# write vectors to file
+
+rdf2vec_wiki_1.to_pickle('rdf2vec_wiki1.pkl')
+rdf2vec_wiki_2.to_pickle('rdf2vec_wiki2.pkl')
+
+word2vec_wiki_1.to_pickle('word2vec_wiki1.pkl')
+word2vec_wiki_2.to_pickle('word2vec_wiki2.pkl')
+
+doc2vec_wiki_1.to_pickle('doc2vec_wiki1.pkl')
+doc2vec_wiki_2.to_pickle('doc2vec_wiki2.pkl')
 
 rdf2vec_wiki_1  = pd.read_pickle('rdf2vec_wiki1.pkl')
 rdf2vec_wiki_2 = pd.read_pickle('rdf2vec_wiki2.pkl')
@@ -236,11 +245,13 @@ def generate_negative_training_examples(df_positives_cases, df_wiki_1_vectors, d
     return df_negative_examples
 
 
-'''
+
 rdf2vec_negative_examples = generate_negative_training_examples(df_common_labels, rdf2vec_wiki_1, rdf2vec_wiki_2)
 doc2vec_negative_examples = generate_negative_training_examples(df_common_labels, doc2vec_wiki_1, doc2vec_wiki_2)
 word2vec_negative_examples = generate_negative_training_examples(df_common_labels, word2vec_wiki_1, word2vec_wiki_2)
 
+
+print('***********Printing Negative Examples*****************')
 print(rdf2vec_negative_examples.head())
 print(doc2vec_negative_examples.head())
 print(word2vec_negative_examples.head())
@@ -295,6 +306,12 @@ df_positive_examples['word2vec_vector_entity_2'].fillna(df_positive_examples['do
 
 
 
+print('******************* Prininting postive examples (training set) *******************')
+print(df_positive_examples.head())
+
+
+
+
 ######################### Training Set Negative Examples ################################################
 rdf2vec_negative_entities = rdf2vec_negative_examples[['entity_id_wiki_1','entity_id_wiki_2']]
 doc2vec_negative_entities = doc2vec_negative_examples[['entity_id_wiki_1','entity_id_wiki_2']] 
@@ -334,7 +351,7 @@ df_training_set = df_training_set.reset_index(drop=True)
 print(df_training_set.head())
 df_training_set.to_pickle('training_set.pkl')
 
-'''
+
 df_training_set = pd.read_pickle('training_set.pkl')
 
 df_positive_training_set = df_training_set[df_training_set['label']==1]
@@ -356,7 +373,7 @@ df_wiki_test_set_2 = df_wiki_2[~(df_wiki_2['entity_id_wiki_2'].isin(entities_tra
 df_wiki_test_set_1 = df_wiki_test_set_1[['entity_id_wiki_1']]
 df_wiki_test_set_2 = df_wiki_test_set_2[['entity_id_wiki_2']]
 
-
+# setting to 100 because of cost of cartersion product
 df_wiki_test_set_1 = df_wiki_test_set_1.head(100)
 df_wiki_test_set_2 = df_wiki_test_set_2.head(100)
 
@@ -368,25 +385,25 @@ df_wiki_test_set = pd.merge(df_wiki_test_set_1, df_wiki_test_set_2, left_index=T
 print(df_wiki_test_set.head())
 
 
-rdf2vec_wiki_1 = rdf2vec_wiki_1[['entity_id','vector']]
-rdf2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'rdf2vec_vector_entity_1'}, inplace=True)
+rdf2vec_wiki_1 = rdf2vec_wiki_1[['entity_id_wiki_1','rdf2vec_vector_entity_1']]
+#rdf2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'rdf2vec_vector_entity_1'}, inplace=True)
 
-rdf2vec_wiki_2 = rdf2vec_wiki_2[['entity_id','vector']]
-rdf2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'rdf2vec_vector_entity_2'}, inplace=True)
-
-
-doc2vec_wiki_1 = doc2vec_wiki_1[['entity_id','vector']]
-doc2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'doc2vec_vector_entity_1'}, inplace=True)
-
-doc2vec_wiki_2 = doc2vec_wiki_2[['entity_id','vector']]
-doc2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'doc2vec_vector_entity_2'}, inplace=True)
+rdf2vec_wiki_2 = rdf2vec_wiki_2[['entity_id_wiki_2','rdf2vec_vector_entity_2']]
+#rdf2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'rdf2vec_vector_entity_2'}, inplace=True)
 
 
-word2vec_wiki_1 = word2vec_wiki_1[['entity_id','vector']]
-word2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'word2vec_vector_entity_1'}, inplace=True)
+doc2vec_wiki_1 = doc2vec_wiki_1[['entity_id_wiki_1','doc2vec_vector_entity_1']]
+#doc2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'doc2vec_vector_entity_1'}, inplace=True)
 
-word2vec_wiki_2 = word2vec_wiki_2[['entity_id','vector']]
-word2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'word2vec_vector_entity_2'}, inplace=True)
+doc2vec_wiki_2 = doc2vec_wiki_2[['entity_id_wiki_2','doc2vec_vector_entity_2']]
+#doc2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'doc2vec_vector_entity_2'}, inplace=True)
+
+
+word2vec_wiki_1 = word2vec_wiki_1[['entity_id_wiki_1','word2vec_vector_entity_1']]
+#word2vec_wiki_1.rename(columns={'entity_id':'entity_id_wiki_1', 'vector':'word2vec_vector_entity_1'}, inplace=True)
+
+word2vec_wiki_2 = word2vec_wiki_2[['entity_id_wiki_2','word2vec_vector_entity_2']]
+#word2vec_wiki_2.rename(columns={'entity_id':'entity_id_wiki_2', 'vector':'word2vec_vector_entity_2'}, inplace=True)
 
 
 
@@ -415,6 +432,7 @@ print(df_wiki_test_set.head())
 print(df_wiki_test_set.columns)
 
 df_wiki_test_set.to_pickle('test_set.pkl')
+'''
 
 '''
 rdf2vec_negative_examples.rename(columns={'vector_entity_1': 'rdf2vec_vector_entity_1', 'vector_entity_2': 'rdf2vec_vector_entity_2'}, inplace=True)

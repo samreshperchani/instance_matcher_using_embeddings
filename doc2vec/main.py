@@ -1,15 +1,16 @@
 from doc2vec import DOC2Vec
 
 
-# create object of a class
-doc2vec = DOC2Vec()
-
-
-# call function to pre-process long abstracts
-doc2vec.pre_process_long_abstracts()
-
-# call function to train model
-doc2vec.train_model()
+if __name__ == '__main__':
+    
+    # create object of a class
+    doc2vec = DOC2Vec()
+    
+    # call function to pre-process long abstracts
+    doc2vec.pre_process_long_abstracts()
+    
+    # call function to train model
+    doc2vec.train_model()
 
 
 

@@ -74,17 +74,32 @@ class OAEI:
             cell_tag = ET.Element("Cell")
 
             entity1_tag = ET.Element("entity1")
-            entity1_tag.set("{" + ns_map['rdf'] + "}resource", row['entity_id_wiki_1'])
+            entity_1_id = str(row['entity_id_wiki_1'])
+            
+            if entity_1_id.startswith('<'):
+                entity_1_id = entity_1_id[1:len(entity_1_id)]
+            
+            if entity_1_id.endswith('>'):
+                entity_1_id = entity_1_id[0:len(entity_1_id)-1]
+                
+            entity1_tag.set("{" + ns_map['rdf'] + "}resource", entity_1_id)
 
             entity2_tag = ET.Element("entity2")
-            entity2_tag.set("{" + ns_map['rdf'] + "}resource", row['entity_id_wiki_2'])
+            entity_2_id = str(row['entity_id_wiki_1'])
+            
+            if entity_2_id.startswith('<'):
+                entity_2_id = entity_2_id[1:len(entity_2_id)]
+            
+            if entity_2_id.endswith('>'):
+                entity_2_id = entity_2_id[0:len(entity_2_id)-1]
+            entity2_tag.set("{" + ns_map['rdf'] + "}resource", str(row['entity_id_wiki_2']))
             
             relation_tag = ET.Element("relation")
             
             if row['label'] == 1:
-                relation_tag.text = '='
+                relation_tag.text = "="
             else:
-                relation_tag.text = '%'
+                relation_tag.text = "%"
             
             measure_tag = ET.Element("measure")
             measure_tag.text = "1.0"
@@ -100,4 +115,6 @@ class OAEI:
 
         ET.register_namespace('',"http://knowledgeweb.semanticweb.org/heterogeneity/alignment")
         root.append(alignment_tag)
-        tree.write("sample.xml", encoding='utf-8',  xml_declaration=True, method = 'xml')
+        #print(tree)
+        #tree.write("sample.xml", encoding='utf-8',  xml_declaration=True, method = 'xml')
+        return tree

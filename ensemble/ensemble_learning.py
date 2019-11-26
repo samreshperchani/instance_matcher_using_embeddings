@@ -1233,8 +1233,8 @@ class ENSEMBLE_LEARNING:
         else:
             return self.transform_dataset_using_concat(X_train, y_train, X_test)
 
-    def generate_ensemble_dataset(self):
-        df_training_set = pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'training_set' + '/'  + 'training_set.pkl')
+    def generate_ensemble_dataset(self, df_training_set, df_test_set):
+        df_training_set = df_training_set #pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'training_set' + '/'  + 'training_set.pkl')
         df_training_set = df_training_set.dropna()
         print(df_training_set.head())
         
@@ -1242,7 +1242,7 @@ class ENSEMBLE_LEARNING:
         X_train = df_training_set.drop(['label'], axis=1)
         
         
-        df_test_set = pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'test_set' + '/'  + 'test_set.pkl')
+        df_test_set = df_test_set #pd.read_pickle(BASE_DIR + '/' + DATA_DIR + '/' + ENSEMBLE_DATASET_PATH + '/'  + 'test_set' + '/'  + 'test_set.pkl')
         df_test_set = df_test_set.dropna()
         X_test = df_test_set #df_test_set.drop(['label'], axis=1)
         
@@ -1252,6 +1252,6 @@ class ENSEMBLE_LEARNING:
 
         return X_train, y_train, X_test
     
-    def get_dataset(self):
-        X_train, y_train, X_test = self.generate_ensemble_dataset()
+    def get_dataset(self, df_training_set, df_test_set):
+        X_train, y_train, X_test = self.generate_ensemble_dataset(df_training_set, df_test_set)
         return X_train, y_train, X_test

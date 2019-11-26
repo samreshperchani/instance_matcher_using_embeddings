@@ -386,15 +386,15 @@ class RDF2Vec:
         model.train(corpus_data, total_examples=model.corpus_count, epochs=RDF2VEC_EPOCHS)
 
         # remove directory if already present
-        if os.path.exists('model'):
-            shutil.rmtree('model')
+        if os.path.exists(str(path.parent) + '/model'):
+            shutil.rmtree(str(path.parent) + '/model')
             time.sleep(5)
 
         # create model directory to save model    
-        os.mkdir('model')
+        os.mkdir(str(path.parent) + '/model')
 
         # save model
-        model.save('model/rdf2vec.model')
+        model.save(str(path.parent) + '/model/rdf2vec.model')
 
     #################################### Database functions ###################################
     def pre_process_labels(self, label):

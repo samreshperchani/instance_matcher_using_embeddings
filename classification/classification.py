@@ -31,6 +31,18 @@ from sklearn.pipeline import make_pipeline
 class CLASSIFICATION:
     # this function runs selected algorithm on training set and return prediction label on test set
     def run_classification(self, X_train, y_train, X_test, classification_algorithm):
+
+        # drop ID coolumns
+        if 'entity_id_wiki_1' in X_train:
+            X_train = X_train.drop(['entity_id_wiki_1'], axis=1)
+        if 'entity_id_wiki_2' in X_train:
+            X_train = X_train.drop(['entity_id_wiki_2'], axis=1)
+        if 'entity_id_wiki_1' in X_test:
+            X_test = X_test.drop(['entity_id_wiki_1'], axis=1)
+        if 'entity_id_wiki_2' in X_test:
+            X_test = X_test.drop(['entity_id_wiki_2'], axis=1)
+
+            
         y_pred = None
         
         ################ Model Training ########################
