@@ -20,6 +20,10 @@ DATA_DIR = config.DATA_DIR
 # model to use for classification
 CLASSIFICATION_MODEL= config.CLASSIFICATION_MODEL
 
+# name of wikis for which instances matcher has to run
+wiki_1 = 'darkscape' 
+wiki_2 = 'oldschoolrunscape'
+
 rdf_xml_utils = RDF_XML_UTILS()
 ensemble_ds = ENSEMBLE_LEARNING()
 classifier = CLASSIFICATION()
@@ -38,7 +42,7 @@ print('***** Executing Word2Vec model ************')
 #os.system('python word2vec/main.py')
 
 print('***** Generate training and test environment ************')
-df_train_set, df_test_set = rdf_xml_utils.generate_train_test(wiki_1 = 'darkscape', wiki_2 = 'oldschoolrunscape')
+df_train_set, df_test_set = rdf_xml_utils.generate_train_test(wiki_1, wiki_2)
 
 print('****** Save training and test set *************')
 #df_train_set.to_pickle(BASE_DIR + '/' + DATA_DIR + '/' + 'training_set_oaei.pkl')

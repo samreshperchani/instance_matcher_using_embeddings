@@ -21,6 +21,11 @@ DATA_DIR = config.DATA_DIR
 CLASSIFICATION_MODEL= config.CLASSIFICATION_MODEL
 
 
+# wikis for which instance matcher has to run
+wiki_1 = '130814~en~gameofthrones'
+wiki_2 = '1622892~en~thrones-of-game'
+
+
 oaei_file_formater = OAEI()
 
 print('***** Extracting Data Dumps ************')
@@ -45,7 +50,7 @@ df_training_set = dbkwik_utils.get_training_set()
 
 print(df_training_set['label'].unique())
 
-df_test_set = dbkwik_utils.get_test_set('130814~en~gameofthrones', '1622892~en~thrones-of-game')
+df_test_set = dbkwik_utils.get_test_set(wiki_1, wiki_2)
 
 ensemble_ds = ENSEMBLE_LEARNING()
 print('getting esemble dataset')
