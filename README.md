@@ -19,6 +19,7 @@ Database is required to group same label entities in case of RDF2Vec model
 3. Place all wiki dumps inside "data_dumps" folder. [Please note that the each dump should be .tar.gz file containing all ttl files and media wiki xml file of the respective wiki]
 4. Create directory with name "gold_standard" in "data" directory
 5. Place gold standard files in OAEI xml format inside "gold_standard" directory.
+6. Run main_dbkwik.py file
 
 
 # Steps to execute OAEI Matcher
