@@ -5,9 +5,18 @@ The project uses three types of embeddings (DOC2Vec, Word2Vec, RDF2Vec) to perfo
 Please set appropriate paraemters including path and database information in config.py file inside config folder.
 Database is required to group same label entities in case of RDF2Vec model
 
+
+# General Steps
+1. Setup Database with Appropriate Name
+2. Execute create_tables.sql script ptovided in db_scripts\ddl_scripts folder
+3. Create DSN connection to DB
+4. Provide DSN Name in "LABELS DATABASE CONFIGURATION (please input DSN name)" section of config file
+5. The configuration lets you to set different databases for instance, category, property and class labels [It is useful if DB size is limited]
+
 # Steps to execute DBkWik workflow
 1. Create directory with name "data"
-2. 
+2. Create directory with name "gold_standard" in "data" directory
+3. Place gold standard files in OAEI xml format inside "gold_standard" directory.
 
 
 # Steps to execute OAEI Matcher
