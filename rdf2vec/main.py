@@ -32,5 +32,5 @@ if __name__ == '__main__':
     rdf2vec_model.train_model()
 
     # extract vectors from rdf2vec model
-    rdf2vec_model.extract_vectors('darkscape','oldschoolrunscape')
+    #rdf2vec_model.extract_vectors('darkscape','oldschoolrunscape')
     

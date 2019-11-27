@@ -17,9 +17,11 @@ from gensim import utils
 import sys
 from pathlib import Path
 
+path = Path(os.path.abspath(__file__))
 
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)

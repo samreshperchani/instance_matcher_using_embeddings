@@ -457,9 +457,9 @@ class RDF_XML_UTILS:
             os.mkdir(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder)
 
             catgeory_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-category-labels.ttl', 'w+', encoding='utf-8')
-            instance_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-instance-labels.ttl', 'w+', encoding='utf-8')
-            property_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-property-labels.ttl', 'w+', encoding='utf-8')
-            class_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-class-labels.ttl', 'w+', encoding='utf-8')
+            instance_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-labels.ttl', 'w+', encoding='utf-8')
+            property_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-infobox-property-definitions.ttl', 'w+', encoding='utf-8')
+            class_labels_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-template-type-definitions.ttl', 'w+', encoding='utf-8')
             abstract_file = open(BASE_DIR + '/' + DATA_DIR + '/' + PROCESSED_DUMPS_DIR + '/' +  dump_folder + '/' + 'wiki-long-abstracts.ttl', 'w+', encoding='utf-8')
             
             g=rdflib.Graph()

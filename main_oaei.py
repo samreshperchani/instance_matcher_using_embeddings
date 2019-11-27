@@ -1,6 +1,7 @@
 from utilities.rdf_xml_utils import RDF_XML_UTILS
 from doc2vec.doc2vec import DOC2Vec
 from rdf2vec.rdf2vec import RDF2Vec
+from word2vec.word2vec import WORD2Vec
 import os
 import config
 from ensemble.ensemble_learning import ENSEMBLE_LEARNING

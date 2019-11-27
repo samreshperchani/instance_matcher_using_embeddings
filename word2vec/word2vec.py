@@ -10,9 +10,14 @@ from pathlib import Path
 import shutil
 import subprocess
 import pandas as pd
+from pathlib import Path
+import time
+
+path = Path(os.path.abspath(__file__))
 
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
@@ -66,7 +71,7 @@ class WORD2Vec:
         '''
         #ta = wikimain_parallel.TEXT_EXTRACTION()
         #ta.extract_text()
-        cmd = ['python', 'wikimain_parallel.py']
+        cmd = ['python', BASE_DIR + '/word2vec/wikimain_parallel.py']
         subprocess.Popen(cmd).wait()
 
     def train_model(self):
@@ -115,14 +120,15 @@ class WORD2Vec:
         model.train(corpus_data, total_examples=model.corpus_count, epochs=WORD2VEC_EPOCHS)
 
         # remove directory if already present
-        if os.path.exists('model'):
-            shutil.rmtree('model')
+        if os.path.exists(str(path.parent) + '/model'):
+            shutil.rmtree(str(path.parent) + '/model')
+            time.sleep(5)
 
         # create model directory to save model    
-        os.mkdir('model')
+        os.mkdir(str(path.parent) + '/model')
 
         # save model
-        model.save('model/word2vec.model')
+        model.save(str(path.parent) + '/model/word2vec.model')
     
 
     # the function is to remove extra characters from labels

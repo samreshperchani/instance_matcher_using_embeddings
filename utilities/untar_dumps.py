@@ -4,9 +4,13 @@ import tarfile
 import multiprocessing as mp
 import shutil
 import sys
+from pathlib import Path
+
+path = Path(os.path.abspath(__file__))
 
 # set configuration file path
-config_path = os.path.dirname(os.getcwd()) + '/config' 
+#config_path = os.path.dirname(os.getcwd()) + '/config' 
+config_path = str(path.parent.parent) + '/config' 
 
 # add config file path to system
 sys.path.append(config_path)
@@ -88,4 +92,9 @@ def untared_xml_dumps():
 # main function which will be called when script will be executed
 if __name__ == '__main__':
         # call function to extract dumps
+        if not os.path.exists(TARGET_DIR_XML_DUMPS):
+                os.mkdir(TARGET_DIR_XML_DUMPS)
+                
+        if not os.path.exists(TARGET_DIR_PROCESSED_DUMPS):
+                os.mkdir(TARGET_DIR_PROCESSED_DUMPS)
         untared_xml_dumps()
