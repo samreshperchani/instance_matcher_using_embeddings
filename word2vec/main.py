@@ -7,7 +7,7 @@ train_model = WORD2Vec()
 
 # extract text
 print('*** Extracting Text *****')
-#train_model.extract_text()
+train_model.extract_text()
 
 # call function to train model
 train_model.train_model()
