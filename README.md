@@ -15,8 +15,9 @@ Database is required to group same label entities in case of RDF2Vec model
 
 # Steps to execute DBkWik workflow
 1. Create directory with name "data"
-2. Create directory with name "gold_standard" in "data" directory
-3. Place gold standard files in OAEI xml format inside "gold_standard" directory.
+2. Create "data_dumps" inside "data" directory [Please note that the each dump should be .tar.gz file containing all ttl files and media wiki xml file of the respective wiki]
+3. Create directory with name "gold_standard" in "data" directory
+4. Place gold standard files in OAEI xml format inside "gold_standard" directory.
 
 
 # Steps to execute OAEI Matcher
